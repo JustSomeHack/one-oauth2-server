@@ -8,7 +8,7 @@ import (
 
 // LDAPConfig configurations for LDAP server connection
 type LDAPConfig struct {
-	BindDN       string
+	BaseDN       string
 	BindUser     string
 	BindPassword string
 	LDAPServer   string
@@ -28,7 +28,7 @@ func LoadLDAPConfig() *LDAPConfig {
 	}
 
 	return &LDAPConfig{
-		BindDN:       os.Getenv("LDAP_BIND_DN"),
+		BaseDN:       os.Getenv("LDAP_BASE_DN"),
 		BindUser:     os.Getenv("LDAP_BIND_USER"),
 		BindPassword: os.Getenv("LDAP_BIND_PASSWORD"),
 		LDAPServer:   os.Getenv("LDAP_SERVER"),

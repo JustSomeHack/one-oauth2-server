@@ -6,7 +6,7 @@ Currently authenticates against LDAP or a Mongo database
 ```json
 "AUTH_TYPE": "ldap",
 "USER_SECRET": "token-secret",
-"LDAP_BIND_DN": "dc=example,dc=com",
+"LDAP_BASE_DN": "dc=example,dc=com",
 "LDAP_BIND_USER": "cn=admin,dc=example,dc=com",
 "LDAP_BIND_PASSWORD": "password",
 "LDAP_SERVER": "ldap.example.com",

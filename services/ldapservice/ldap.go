@@ -17,7 +17,7 @@ type LDAPService interface {
 }
 
 type ldapService struct {
-	bindDN       string
+	baseDN       string
 	bindUser     string
 	bindPassword string
 	ldapServer   string
@@ -29,7 +29,7 @@ type ldapService struct {
 // NewLDAPService gets a new reference to LDAPService
 func NewLDAPService(ldapConfig *ldapconfig.LDAPConfig) LDAPService {
 	return &ldapService{
-		bindDN:       ldapConfig.BindDN,
+		baseDN:       ldapConfig.BaseDN,
 		bindUser:     ldapConfig.BindUser,
 		bindPassword: ldapConfig.BindPassword,
 		ldapServer:   ldapConfig.LDAPServer,
@@ -47,7 +47,7 @@ func (l *ldapService) Authenticate(username string, password string) (*models.Us
 	defer l.conn.Close()
 
 	searchRequest := ldap.NewSearchRequest(
-		l.bindDN,
+		l.baseDN,
 		ldap.ScopeWholeSubtree, ldap.NeverDerefAliases, 0, 0, false,
 		fmt.Sprintf("(&(objectClass=organizationalPerson)(uid=%s))", username),
 		[]string{"dn"},
