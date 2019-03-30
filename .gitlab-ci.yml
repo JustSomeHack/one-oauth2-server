@@ -1,0 +1,77 @@
+image: golang:latest
+
+before_script:
+  - mkdir -p $GOPATH/src/github.com/$CI_PROJECT_NAMESPACE
+  - mv one-byte-module $GOPATH/src/github.com/$CI_PROJECT_NAMESPACE/
+  - cd $GOPATH/src/github.com/$CI_PROJECT_NAMESPACE
+  - ln -s $CI_PROJECT_DIR
+  - cd $CI_PROJECT_DIR
+
+stages:
+  - test
+  - build
+  - publish
+  - deploy
+
+variables:
+  GIT_STRATEGY: clone
+  GIT_SUBMODULE_STRATEGY: recursive
+  DOCKER_HOST: tcp://localhost:2375
+  LATEST_IMAGE: $CI_REGISTRY_IMAGE:latest
+  TAG_IMAGE: $CI_REGISTRY_IMAGE:${CI_PIPELINE_ID}
+
+test:
+  stage: test
+  script:
+    - go get -v github.com/stretchr/testify
+    - go get -v github.com/dgrijalva/jwt-go
+    - go get -v github.com/gin-gonic/gin
+    - go get -v github.com/gin-contrib/cors
+    - go get -v go.mongodb.org/mongo-driver/mongo
+
+build:
+  stage: build
+  variables:
+    CGO_ENABLED: "0"
+    GOOS: linux
+    GOARCH: amd64
+  script:
+    - go get -v github.com/dgrijalva/jwt-go
+    - go get -v github.com/gin-gonic/gin
+    - go get -v github.com/gin-contrib/cors
+    - go get -v go.mongodb.org/mongo-driver/mongo
+    - go build -v -a -ldflags "-X main.version=build.${CI_PIPELINE_ID}" -o build/docker/one-oauth2-server
+  cache:
+    key: ${CI_PIPELINE_ID}
+    paths:
+      - build
+
+publish:
+  image: docker:stable
+  services:
+    - docker:dind
+  stage: publish
+  only:
+    - master
+  cache:
+    key: ${CI_PIPELINE_ID}
+    paths:
+      - build
+  script:
+    - echo $CI_JOB_TOKEN | docker login -u gitlab-ci-token --password-stdin $CI_REGISTRY
+    - docker build -t $LATEST_IMAGE -t $TAG_IMAGE .
+    - docker push $LATEST_IMAGE
+    - docker push $TAG_IMAGE
+
+deploy:
+  image: deyung/drone-kubernetes:latest
+  stage: deploy
+  only:
+    - master
+  variables:
+    PLUGIN_ACTION: update-image
+    PLUGIN_DEPLOYMENT: one-oauth2-server
+    PLUGIN_IMAGE_NAME: $CI_REGISTRY_IMAGE
+    PLUGIN_IMAGE_TAG: ${CI_PIPELINE_ID}
+  script:
+    - /app/drone-kubernetes-linux
