@@ -1,8 +1,8 @@
 image: golang:latest
 
 before_script:
-  - mkdir -p $GOPATH/src/git.onebytedata.com/$CI_PROJECT_NAMESPACE
-  - cd $GOPATH/src/github.com/$CI_PROJECT_NAMESPACE
+  - mkdir -p $GOPATH/src/github.com/JustSomeHack
+  - cd $GOPATH/src/github.com/JustSomeHack
   - ln -s $CI_PROJECT_DIR
   - cd $CI_PROJECT_DIR
 
