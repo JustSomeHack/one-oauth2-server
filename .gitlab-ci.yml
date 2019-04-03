@@ -15,7 +15,6 @@ stages:
 variables:
   GIT_STRATEGY: clone
   GIT_SUBMODULE_STRATEGY: recursive
-  DOCKER_HOST: tcp://localhost:2375
   LATEST_IMAGE: $CI_REGISTRY_IMAGE:latest
   TAG_IMAGE: $CI_REGISTRY_IMAGE:${CI_PIPELINE_ID}
 
@@ -49,8 +48,6 @@ build:
 
 publish:
   image: docker:stable
-  services:
-    - docker:dind
   stage: publish
   only:
     - master
