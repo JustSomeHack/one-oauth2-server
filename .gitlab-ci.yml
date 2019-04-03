@@ -21,6 +21,7 @@ variables:
 test:
   stage: test
   script:
+    - go get -v gopkg.in/ldap.v2
     - go get -v gopkg.in/ldap.v3
     - go get -v github.com/stretchr/testify
     - go get -v github.com/dgrijalva/jwt-go
@@ -35,6 +36,7 @@ build:
     GOOS: linux
     GOARCH: amd64
   script:
+    - go get -v gopkg.in/ldap.v2
     - go get -v gopkg.in/ldap.v3
     - go get -v github.com/dgrijalva/jwt-go
     - go get -v github.com/gin-gonic/gin
