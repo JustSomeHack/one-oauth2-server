@@ -14,6 +14,7 @@ type LDAPConfig struct {
 	LDAPServer   string
 	LDAPPort     int
 	UseTLS       bool
+	StartTLS     bool
 }
 
 // LoadLDAPConfig loads configuration from environment variable

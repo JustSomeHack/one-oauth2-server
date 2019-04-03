@@ -23,6 +23,7 @@ type ldapService struct {
 	ldapServer   string
 	ldapPort     int
 	useTLS       bool
+	startTLS     bool
 	conn         *ldap.Conn
 }
 
@@ -35,6 +36,7 @@ func NewLDAPService(ldapConfig *ldapconfig.LDAPConfig) LDAPService {
 		ldapServer:   ldapConfig.LDAPServer,
 		ldapPort:     ldapConfig.LDAPPort,
 		useTLS:       ldapConfig.UseTLS,
+		startTLS:     ldapConfig.StartTLS,
 	}
 }
 
@@ -76,15 +78,22 @@ func (l *ldapService) Authenticate(username string, password string) (*models.Us
 }
 
 func (l *ldapService) bind() (err error) {
-	l.conn, err = ldap.Dial("tcp", fmt.Sprintf("%s:%d", l.ldapServer, l.ldapPort))
-	if err != nil {
-		return
-	}
-
 	if l.useTLS {
-		err = l.conn.StartTLS(&tls.Config{ServerName: l.ldapServer, InsecureSkipVerify: true})
+		l.conn, err = ldap.DialTLS("tcp", fmt.Sprintf("%s:%d", l.ldapServer, l.ldapPort), &tls.Config{ServerName: l.ldapServer})
 		if err != nil {
 			return
+		}
+	} else {
+		l.conn, err = ldap.Dial("tcp", fmt.Sprintf("%s:%d", l.ldapServer, l.ldapPort))
+		if err != nil {
+			return
+		}
+
+		if l.startTLS {
+			err = l.conn.StartTLS(&tls.Config{ServerName: l.ldapServer, InsecureSkipVerify: true})
+			if err != nil {
+				return
+			}
 		}
 	}
 
